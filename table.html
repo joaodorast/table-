@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela </title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.5s, color 0.5s; 
+            color: #ecf0f1;
+            background-color: rgba(44, 62, 80, 1); 
+        }
+
+        .rain {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .drop {
+            width: 2px;
+            height: 15px;
+            background: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            bottom: 100%;
+            animation: fall linear infinite;
+            opacity: 0.5;
+            animation-duration: 1s; 
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            background: rgba(44, 62, 80, 0.9);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 35px rgba(0, 0, 0, 0.7);
+            margin-bottom: 20px;
+            transition: background-color 0.5s; 
+        }
+
+        th,
+        td {
+            border: 1px solid #34495e;
+            padding: 15px;
+            text-align: left;
+            transition: background-color 0.3s, transform 0.3s;
+            position: relative; 
+        }
+
+        th {
+            background-color: #2980b9;
+            color: #ecf0f1;
+            cursor: pointer;
+        }
+
+        tr:nth-child(even) {
+            background-color: #1abc9c;
+        }
+
+        tr:hover {
+            background-color: #16a085;
+            cursor: pointer;
+            transform: scale(1.02);
+        }
+
+        .search-container {
+            margin-bottom: 10px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 300px;
+        }
+
+        #addRow,
+        #exportCSV,
+        #deleteRow,
+        #toggleTheme,
+        #themeSelector {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2980b9;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 5px;
+        }
+
+        #addRow:hover,
+        #exportCSV:hover,
+        #deleteRow:hover,
+        #toggleTheme:hover,
+        #themeSelector:hover {
+            background-color: #1abc9c;
+        }
+
+        
+        #modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        
+        .light-theme {
+            background-color: #ffffff; 
+            color: #000000; 
+        }
+
+        .light-theme table {
+            background-color: rgba(255, 255, 255, 0.9); 
+        }
+
+        .dark-theme {
+            background-color: #2c3e50; 
+            color: #ecf0f1; 
+        }
+
+        .dark-theme table {
+            background-color: #34495e; 
+        }
+
+        .blue-theme {
+            background-color: #3498db; 
+            color: #fff; 
+        }
+
+        .blue-theme table {
+            background-color: rgba(52, 152, 219, 0.8); 
+        }
+
+        .green-theme {
+            background-color: #2ecc71; 
+            color: #fff; 
+        }
+
+        .green-theme table {
+            background-color: rgba(46, 204, 113, 0.8); 
+        }
+
+        .red-theme {
+            background-color: #e74c3c; 
+            color: #fff; 
+        }
+
+        .red-theme table {
+            background-color: rgba(231, 76, 60, 0.8);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="rain" id="rain"></div>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Pesquisar...">
+    </div>
+
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th onclick="sortTable(0)">Nome</th>
+                <th onclick="sortTable(1)">Idade</th>
+                <th onclick="sortTable(2)">Cidade</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td onclick="cellClick(this, 'Maria', 30, 'São Paulo')">Maria</td>
+                <td onclick="cellClick(this, 'Maria', 30, 'São Paulo')">30</td>
+                <td onclick="cellClick(this, 'Maria', 30, 'São Paulo')">São Paulo</td>
+            </tr>
+            <tr>
+                <td onclick="cellClick(this, 'João', 25, 'Rio de Janeiro')">João</td>
+                <td onclick="cellClick(this, 'João', 25, 'Rio de Janeiro')">25</td>
+                <td onclick="cellClick(this, 'João', 25, 'Rio de Janeiro')">Rio de Janeiro</td>
+            </tr>
+            <tr>
+                <td onclick="cellClick(this, 'Ana', 22, 'Curitiba')">Ana</td>
+                <td onclick="cellClick(this, 'Ana', 22, 'Curitiba')">22</td>
+                <td onclick="cellClick(this, 'Ana', 22, 'Curitiba')">Curitiba</td>
+            </tr>
+            <tr>
+                <td onclick="cellClick(this, 'Carlos', 28, 'Belo Horizonte')">Carlos</td>
+                <td onclick="cellClick(this, 'Carlos', 28, 'Belo Horizonte')">28</td>
+                <td onclick="cellClick(this, 'Carlos', 28, 'Belo Horizonte')">Belo Horizonte</td>
+            </tr>
+            <tr>
+                <td onclick="cellClick(this, 'Laura', 32, 'Brasília')">Laura</td>
+                <td onclick="cellClick(this, 'Laura', 32, 'Brasília')">32</td>
+                <td onclick="cellClick(this, 'Laura', 32, 'Brasília')">Brasília</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <button id="addRow">Adicionar Novo Registro</button>
+    <button id="deleteRow">Excluir Registro Selecionado</button>
+    <button id="exportCSV">Exportar para CSV</button>
+    
+    <label for="themeSelector">Escolha um Tema:</label>
+    <select id="themeSelector">
+        <option value="default">Padrão</option>
+        <option value="light-theme">Claro</option>
+        <option value="dark-theme">Escuro</option>
+        <option value="blue-theme">Azul</option>
+        <option value="green-theme">Verde</option>
+        <option value="red-theme">Vermelho</option>
+    </select>
+
+    
+    <div id="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Detalhes</h3>
+            <p id="modalText"></p>
+        </div>
+    </div>
+
+    <script>
+        let selectedRow = null;
+
+        
+        function createRain() {
+            const rainContainer = document.getElementById('rain');
+            for (let i = 0; i < 100; i++) {
+                const drop = document.createElement('div');
+                drop.classList.add('drop');
+                drop.style.left = Math.random() * window.innerWidth + 'px';
+                drop.style.animationDuration = Math.random() * 1 + 0.5 + 's'; 
+                drop.style.height = Math.random() * 20 + 10 + 'px'; 
+                drop.style.opacity = Math.random() * 0.5 + 0.3; 
+                rainContainer.appendChild(drop);
+            }
+        }
+
+        
+        function cellClick(element, name, age, city) {
+            selectedRow = element.parentElement; 
+            const modal = document.getElementById("modal");
+            const modalText = document.getElementById("modalText");
+            modalText.innerText = `Nome: ${name}\nIdade: ${age}\nCidade: ${city}`;
+            modal.style.display = "block";
+
+            
+            element.contentEditable = true;
+            element.addEventListener('blur', function () {
+                if (element.innerText.trim() === '') {
+                    alert('Nome não pode ser vazio!');
+                    element.innerText = name; 
+                }
+                element.contentEditable = false;
+            });
+        }
+
+        
+        function sortTable(columnIndex) {
+            const table = document.getElementById("dataTable");
+            const tbody = table.tBodies[0];
+            const rows = Array.from(tbody.rows);
+            const isAscending = tbody.dataset.sorted === "asc";
+            tbody.dataset.sorted = isAscending ? "desc" : "asc";
+            const direction = isAscending ? 1 : -1;
+
+            rows.sort((a, b) => {
+                const aText = a.cells[columnIndex].innerText;
+                const bText = b.cells[columnIndex].innerText;
+
+                if (columnIndex === 1) { 
+                    return (parseInt(aText) - parseInt(bText)) * direction;
+                }
+                return aText.localeCompare(bText) * direction;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        
+        document.getElementById("searchInput").addEventListener("keyup", function () {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll("#dataTable tbody tr");
+            rows.forEach(row => {
+                const cells = row.getElementsByTagName("td");
+                let match = false;
+                for (let i = 0; i < cells.length; i++) {
+                    if (cells[i].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+                row.style.display = match ? "" : "none";
+            });
+        });
+
+        
+        document.getElementById("addRow").addEventListener("click", function () {
+            const name = prompt("Digite o nome:");
+            const age = prompt("Digite a idade:");
+            const city = prompt("Digite a cidade:");
+
+            
+            if (!name || name.trim() === '' || !age || isNaN(age) || !city || city.trim() === '') {
+                alert('Por favor, preencha todos os campos corretamente.');
+                return;
+            }
+
+            const table = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+            const newRow = table.insertRow();
+            newRow.innerHTML = `<td onclick="cellClick(this, '${name}', ${age}, '${city}')">${name}</td>
+                                <td>${age}</td>
+                                <td>${city}</td>`;
+        });
+
+        
+        document.getElementById("deleteRow").addEventListener("click", function () {
+            if (selectedRow) {
+                const tableBody = document.getElementById("dataTable").getElementsByTagName('tbody')[0];
+                tableBody.deleteRow(selectedRow.rowIndex - 1); 
+                selectedRow = null; 
+            } else {
+                alert('Selecione uma linha para excluir.');
+            }
+        });
+
+        
+        document.getElementById("exportCSV").addEventListener("click", function () {
+            const rows = Array.from(document.querySelectorAll("table tr"));
+            const csvContent = rows.map(row => {
+                const cols = Array.from(row.querySelectorAll("th, td"));
+                return cols.map(col => col.innerText).join(",");
+            }).join("\n");
+
+            const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+            const link = document.createElement("a");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", "dados.csv");
+            link.style.display = "none";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        
+        document.getElementById("themeSelector").addEventListener("change", function () {
+            const theme = this.value;
+            document.body.className = ''; 
+            if (theme !== 'default') {
+                document.body.classList.add(theme); 
+            }
+        });
+
+        
+        document.getElementsByClassName("close")[0].onclick = function () {
+            document.getElementById("modal").style.display = "none";
+        };
+
+        
+        window.onclick = function (event) {
+            if (event.target === document.getElementById("modal")) {
+                document.getElementById("modal").style.display = "none";
+            }
+        };
+
+        
+        window.onload = createRain;
+    </script>
+</body>
+
+</html
